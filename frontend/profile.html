@@ -1,3 +1,133 @@
 <link rel="stylesheet" href="styles.css">
 
 <script src="app.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | AI Fitness</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <h1>AI Fitness</h1>
+
+  <!-- Create Account -->
+  <section class="auth-box">
+    <h2>Create Account</h2>
+
+    <input
+      type="email"
+      id="regEmail"
+      placeholder="Email"
+      required
+    />
+
+    <input
+      type="password"
+      id="regPassword"
+      placeholder="Password"
+      required
+    />
+
+    <button onclick="register()">Create Account</button>
+
+    <p id="registerStatus"></p>
+  </section>
+
+  <hr>
+
+  <!-- Login -->
+  <section class="auth-box">
+    <h2>Login</h2>
+
+    <input
+      type="email"
+      id="loginEmail"
+      placeholder="Email"
+      required
+    />
+
+    <input
+      type="password"
+      id="loginPassword"
+      placeholder="Password"
+      required
+    />
+
+    <button onclick="login()">Log In</button>
+
+    <p id="loginStatus"></p>
+  </section>
+
+  <nav>
+    <a href="index.html">Home</a>
+  </nav>
+
+  <script src="app.js"></script>
+
+  <script>
+    const API = "http://127.0.0.1:8001";
+
+    async function register() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      const status = document.getElementById("registerStatus");
+
+      try {
+        const res = await fetch(`${API}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          status.textContent = data.detail || "Registration failed";
+          return;
+        }
+
+        status.textContent = "Account created! You can now log in.";
+      } catch (err) {
+        status.textContent = "Server error. Is backend running?";
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const status = document.getElementById("loginStatus");
+
+      try {
+        const res = await fetch(`${API}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          status.textContent = data.detail || "Login failed";
+          return;
+        }
+
+        // Save JWT
+        localStorage.setItem("token", data.access_token);
+
+        status.textContent = "Login successful! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1000);
+
+      } catch (err) {
+        status.textContent = "Server error. Is backend running?";
+      }
+    }
+  </script>
+
+</body>
+</html>
