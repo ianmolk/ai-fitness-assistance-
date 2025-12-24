@@ -1,3 +1,77 @@
 <link rel="stylesheet" href="styles.css">
 
 <script src="app.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Fitness App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>AI Fitness</h1>
+    <p>Your personalised fitness companion</p>
+  </header>
+
+  <!-- Daily Motivation -->
+  <section id="motivation">
+    <h2>Daily Motivation</h2>
+    <p id="quote">Stay consistent. You've got this!</p>
+  </section>
+
+  <!-- User Stats -->
+  <section id="stats">
+    <h2>Your Stats</h2>
+
+    <label>
+      Height (cm):
+      <input type="number" id="height">
+    </label>
+
+    <label>
+      Weight (kg):
+      <input type="number" id="weight">
+    </label>
+
+    <label> 
+        Age (digits):
+        <input type="number" id="Age">
+    </label>
+
+
+    <button onclick="saveStats()">Save</button>
+  </section>
+
+  <!-- Main Features -->
+  <section id="features">
+    <h2>Your Plans</h2>
+
+    <div class="card">
+      <h3>AI Workouts</h3>
+      <p>Personalised workouts based on your body type and equipment.</p>
+      <a href="workouts.html">View Workouts</a>
+    </div>
+
+    <div class="card">
+      <h3> AI Meal Plans</h3>
+      <p>Meal plans based on your diet preferences and budget.</p>
+      <a href="profile.html">View Meal Plan</a>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="chat.html">AI Coach</a>
+    <a href="about.html">About</a>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
