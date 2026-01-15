@@ -1,42 +1,28 @@
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.secuirty import OAuth2passwordBearer
-from passlib.context import CryptContext
-from jose import jwt, JWTError
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
+import os
 from dotenv import load_dotenv
-import os 
-from datetime import datetime, timedelta 
-from pydantic import BaseModel
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+app = Flask(__name__)
+CORS(app)
 
-app = FastAPI()
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+ALGORITHM = "HS256"
 
-oauth3_scheme = OAuth2PasswordBearer(tokenUrl="login")
-pwd_context - CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
+# Simple in-memory database for now (will use SQLite later if needed)
 users_db = {}
 
-class UserAuth(BaseModel):
-    email: str
-    password: str 
-
-
-class UserProfile(BaseModel):
-    height: float
-    weight: float 
-    age: int
-    goal: str 
-
-
-def hash_password(Password: str):
-    return pwd_context.verify(password, hashed)
+def hash_password(password: str):
+    return generate_password_hash(password)
 
 def verify_password(password, hashed):
-    return pwd_context.verify(password, hashed)
+    return check_password_hash(hashed, password)
 
 def create_token(email: str):
     payload = {
@@ -45,67 +31,107 @@ def create_token(email: str):
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email not in users_db:
-            raise HTTPException(status_code=401, detail="Invalid user")
-        return email
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({"detail": "Missing token"}), 401
+        
+        try:
+            token = token.split(" ")[1]  # Remove "Bearer "
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            email = payload.get("sub")
+            if email not in users_db:
+                return jsonify({"detail": "Invalid user"}), 401
+        except:
+            return jsonify({"detail": "Invalid token"}), 401
+        
+        return f(email, *args, **kwargs)
+    return decorated
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "Backend is running!", "message": "Connection successful"})
+
+@app.route("/auth/register", methods=["POST"])
+def register():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
     
-
-@app.post("/auth/register")
-def register(user: UserAuth):
-    if user.email in users.db:
-        raise HTTPException(status_code=400, detail="user exists")
-
-
-    users_db[user.email] = {
-        "password": hash_password(user.password),
+    if not email or not password:
+        return jsonify({"detail": "Email and password required"}), 400
+    
+    if email in users_db:
+        return jsonify({"detail": "User already exists"}), 400
+    
+    users_db[email] = {
+        "password": hash_password(password),
         "profile": None
     }
-
-    return {"message": "User registered"}
-
-
-@app.post("/auth/login")
-def login(user: UserAuth):
-    db_user = users_db.get(user.email)
-    if not db_user or not verify_password(user.password, db_user["password"]):
-        raise HTTPException(status_code=401, details="Invalid credentials")
     
-    token = create_token(user.email)
-    return {"access_token": token}
+    return jsonify({"message": "User registered successfully"}), 201
 
+@app.route("/auth/login", methods=["POST"])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not email or not password:
+        return jsonify({"detail": "Email and password required"}), 400
+    
+    db_user = users_db.get(email)
+    if not db_user or not verify_password(password, db_user["password"]):
+        return jsonify({"detail": "Invalid credentials"}), 401
+    
+    token = create_token(email)
+    return jsonify({"access_token": token, "token_type": "bearer"}), 200
 
-@app.get("/user/profile")
-def get_profile(email:str = Depends(get_current_user)):
-    return users_db[email]["profile"]
+@app.route("/user/profile", methods=["GET"])
+@token_required
+def get_profile(email):
+    profile = users_db[email]["profile"]
+    if not profile:
+        return jsonify({"message": "Profile not set"}), 200
+    return jsonify(profile), 200
 
-@app.put("/user/profile")
-def update_profile(profile: UserProfile, email: str = Depends(get_current_user)):
-    users_db[email]["profile"] = profile
-    return {"message": "Profile updated"}
+@app.route("/user/profile", methods=["PUT"])
+@token_required
+def update_profile(email):
+    data = request.json
+    users_db[email]["profile"] = {
+        "height": data.get("height"),
+        "weight": data.get("weight"),
+        "age": data.get("age"),
+        "goal": data.get("goal")
+    }
+    return jsonify({"message": "Profile updated"}), 200
 
-
-
-@app.post("/ai/chat")
-def ai_chat(messages: dict, email: str = Depends(get_current_user)):
+@app.route("/ai/chat", methods=["POST"])
+@token_required
+def ai_chat(email):
+    data = request.json
     user_profile = users_db[email]["profile"]
-
-    if not user_profile:
-        return {"reply": "please complete ur rego first"}
     
-    goal = user_profile.goal
-
+    if not user_profile:
+        return jsonify({"reply": "Please complete your profile first"}), 200
+    
+    goal = user_profile.get("goal")
+    
     if goal == "cut":
-        reply = "focus on higher reps and calorie deficit"
+        reply = "Focus on higher reps and calorie deficit"
     elif goal == "bulk":
         reply = "Progressive overload and calorie surplus"
     else:
-        reply = "Train consistentlhy and revoer well"
+        reply = "Tell me more about your fitness goal!"
+    
+    return jsonify({"reply": reply}), 200
+
+if __name__ == "__main__":
+    app.run(debug=True, port=8001)
+
 
 
 

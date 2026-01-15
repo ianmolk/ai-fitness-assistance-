@@ -18,8 +18,9 @@ async function register() {
       return;
     }
     status.textContent = "Account created! You can now log in.";
-  } catch {
-    status.textContent = "Backend not running";
+  } catch (error) {
+    console.error("Registration error:", error);
+    status.textContent = "Backend not running. Make sure to run: python -m uvicorn app:app --reload --port 8001";
   }
 }
 
@@ -44,7 +45,8 @@ async function login() {
     localStorage.setItem("token", data.access_token);
     status.textContent = "Login successful!";
     setTimeout(() => window.location.href = "index.html", 800);
-  } catch {
-    status.textContent = "Backend not running";
+  } catch (error) {
+    console.error("Login error:", error);
+    status.textContent = "Backend not running. Make sure to run: python -m uvicorn app:app --reload --port 8001";
   }
 }

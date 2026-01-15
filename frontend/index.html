@@ -1,71 +1,121 @@
-<link rel="stylesheet" href="styles.css">
-
-<script src="app.js"></script>
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>AI Fitness App</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Fitness App</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      :root{
+        --blue-100: #eaf6ff;
+        --blue-300: #a9dcff;
+        --blue-500: #2fa8ff;
+        --white: #ffffff;
+        --muted: #6b7280;
+      }
 
-<body>
+      html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+      body{
+        display:flex;align-items:center;justify-content:center;
+        background: linear-gradient(180deg,var(--blue-100) 0%, #f7fbff 50%);
+        color:#0f172a;
+        padding:32px;
+      }
 
-  <!-- Header -->
-  <header>
-    <h1>AI Fitness</h1>
-    <p>Your personalised fitness companion</p>
-  </header>
+      .container{
+        width:100%;max-width:980px;background:transparent;display:flex;gap:32px;align-items:flex-start;justify-content:center;
+      }
 
-  <!-- Daily Motivation -->
-  <section id="motivation">
-    <h2>Daily Motivation</h2>
-    <p id="quote">Stay consistent. You've got this!</p>
-  </section>
+      .brand{
+        flex:1;display:flex;flex-direction:column;gap:16px;align-items:flex-start;padding:28px 32px;border-radius:16px;
+        background:linear-gradient(135deg,var(--white) 0%, rgba(255,255,255,0.7) 100%);
+        box-shadow: 0 8px 24px rgba(47,168,255,0.08);
+      }
 
-  <!-- User Stats -->
-  <section id="stats">
-    <h2>Your Stats</h2>
+      .brand h1{margin:0;font-size:28px;color:var(--blue-500)}
+      .brand p{margin:0;color:var(--muted)}
 
-    <label>
-      Height (cm):
-      <input type="number" id="height">
-    </label>
+      .card{
+        flex:1;background:var(--white);padding:28px;border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,0.06);
+        max-width:560px;width:100%;
+      }
 
-    <label>
-      Weight (kg):
-      <input type="number" id="weight">
-    </label>
+      .section{margin-bottom:18px}
+      .section h2{margin:0 0 8px 0}
 
-    <label> 
-        Age (digits):
-        <input type="number" id="Age">
-    </label>
+      form.inline{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+      label{display:flex;flex-direction:column;gap:6px}
+      input[type="number"], input[type="text"]{padding:10px;border-radius:10px;border:1px solid #e6eef9;background:#fbfeff}
 
+      a.button-link{display:inline-block;padding:10px 12px;border-radius:10px;background:var(--blue-100);color:var(--blue-500);text-decoration:none}
 
-    <button onclick="saveStats()">Save</button>
-  </section>
+      .tabs{display:flex;gap:8px;margin-bottom:20px}
+      .muted{color:var(--muted);font-size:13px}
 
-  <!-- Main Features -->
-  <section id="features">
-    <h2>Your Plans</h2>
+      nav{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 
-    <div class="card">
-      <h3>AI Workouts</h3>
-      <p>Personalised workouts based on your body type and equipment.</p>
-      <a href="workouts.html">View Workouts</a>
+      @media (max-width:900px){
+        .container{flex-direction:column;padding:12px}
+        .brand{align-items:center;text-align:center}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="brand">
+        <h1>AI Fitness</h1>
+        <p>Personalized workout and nutrition guidance — AI-powered and human-friendly.</p>
+        <p class="muted">Quick glance at your daily motivation and stats.</p>
+      </div>
+
+      <div class="card">
+        <div class="section" id="motivation">
+          <h2>Daily Motivation</h2>
+          <p id="quote" class="muted">Stay consistent. You've got this!</p>
+        </div>
+
+        <div class="section" id="stats">
+          <h2>Your Stats</h2>
+          <form class="inline" onsubmit="event.preventDefault();saveStats();">
+            <label>
+              Height (cm)
+              <input type="number" id="height" placeholder="170" />
+            </label>
+
+            <label>
+              Weight (kg)
+              <input type="number" id="weight" placeholder="70" />
+            </label>
+
+            <label>
+              Age
+              <input type="number" id="Age" placeholder="30" />
+            </label>
+
+            <button class="btn" type="submit">Save</button>
+          </form>
+        </div>
+
+        <div class="section" id="features">
+          <h2>Your Plans</h2>
+          <div class="card-inner">
+            <h3>AI Workouts</h3>
+            <p class="muted">Personalised workouts based on your body type and equipment.</p>
+            <a class="button-link" href="workouts.html">View Workouts</a>
+          </div>
+        </div>
+
+        <nav>
+          <a href="index.html" class="muted">Home</a>
+          <a href="workouts.html" class="muted">Workouts</a>
+          <a href="chat.html" class="muted">AI Coach</a>
+          <a href="about.html" class="muted">About</a>
+          <a href="login.html" class="muted">Login</a>
+        </nav>
+
+        <script src="app.js"></script>
+      </div>
     </div>
-
-
-  <!-- Navigation -->
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="workouts.html">Workouts</a>
-    <a href="chat.html">AI Coach</a>
-    <a href="about.html">About</a>
-  </nav>
-
-  <script src="app.js"></script>
-</body>
+  </body>
 </html>
