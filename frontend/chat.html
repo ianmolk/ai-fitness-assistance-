@@ -54,7 +54,8 @@
       }
 
       .message-bubble{
-        max-width:75%;padding:12px 16px;border-radius:12px;word-wrap:break-word;font-size:14px;line-height:1.5;
+        max-width:75%;padding:12px 16px;border-radius:12px;word-wrap:break-word;font-size:14px;line-height:1.6;
+        white-space: pre-wrap;word-break: break-word;
       }
 
       .message-bubble.bot{
@@ -126,10 +127,10 @@
         </div>
 
         <div class="input-group">
-          <input 
-            type="text" 
-            id="messageInput" 
-            placeholder="Type your question..." 
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Type your question..."
             onkeypress="event.key === 'Enter' && sendMessage();"
           />
           <button class="btn" onclick="sendMessage()">Send</button>
@@ -140,39 +141,6 @@
         </footer>
       </div>
     </div>
-
-    <script>
-      function sendMessage(){
-        const input = document.getElementById('messageInput');
-        const message = input.value.trim();
-        if(!message) return;
-
-        // Add user message
-        const chatContainer = document.getElementById('chatContainer');
-        const userMsgDiv = document.createElement('div');
-        userMsgDiv.className = 'chat-message user';
-        userMsgDiv.innerHTML = `<div class="message-bubble user">${escapeHtml(message)}</div>`;
-        chatContainer.appendChild(userMsgDiv);
-
-        // TODO: Send to backend API and get response
-        // For now, add a placeholder response
-        setTimeout(() => {
-          const botMsgDiv = document.createElement('div');
-          botMsgDiv.className = 'chat-message';
-          botMsgDiv.innerHTML = `<div class="message-bubble bot">I received your message: "${escapeHtml(message)}". Backend integration coming soon!</div>`;
-          chatContainer.appendChild(botMsgDiv);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 500);
-
-        input.value = '';
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-
-      function escapeHtml(text){
-        const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
-        return text.replace(/[&<>"']/g, m => map[m]);
-      }
-    </script>
 
     <script src="app.js"></script>
   </body>
